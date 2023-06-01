@@ -1,7 +1,7 @@
 from enum import Enum, auto
 
 
-class Actions(Enum):
+class ActionsEnum(Enum):
     MOVE_UP = auto()
     MOVE_DOWN = auto()
     MOVE_LEFT = auto()
