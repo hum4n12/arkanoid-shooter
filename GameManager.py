@@ -6,20 +6,25 @@ from Level import Level
 from Player import Player
 from Bullet import Bullet
 import Config
+from commands.InputHandler import InputHandler
+
 
 class GameManager:
-    size = (Config.screen_width, Config.screen_height)
+    size = (Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
     screen = pygame.display.set_mode(size)
 
     def __init__(self):
         self.level = Level(0)
-        self.player = None
-        self.bullets: list [Bullet] = []
+        self.player: Player = None
+        self.handler: InputHandler = None
+        self.bullets: list[Bullet] = []
 
     def load(self):
         self.level.load()
         self.player = Player(self.level.get_player_position())
         self.player.bullets = self.bullets
+        self.handler = InputHandler(self.player)
+        self.handler.init()
 
     def update(self, clock: pygame.time.Clock):
         self.input_handler()
@@ -42,7 +47,7 @@ class GameManager:
         self.player.draw(self.screen)
         for bullet in self.bullets:
             bullet.draw(self.screen)
-            
+
         pygame.display.flip()
 
     def input_handler(self):
@@ -50,7 +55,7 @@ class GameManager:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            self.player.input_handler(event)
+            self.handler.handle_input(event)
 
     def resolve_collisions(self):
         self.player.move_x()

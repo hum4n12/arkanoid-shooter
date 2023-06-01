@@ -29,4 +29,4 @@ class Bullet(Entity):
             self.bounces -= 1
 
     def is_outside_screen(self) -> bool:
-        return (self.position.x > Config.screen_width or self.position.x < 0) or (self.position.y > Config.screen_height or self.position.y < 0)
+        return (self.position.x > Config.SCREEN_WIDTH or self.position.x < 0) or (self.position.y > Config.SCREEN_HEIGHT or self.position.y < 0)
