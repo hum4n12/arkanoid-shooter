@@ -1,36 +1,28 @@
-import pygame
-import math
+from pygame import Surface
+from abc import ABC, abstractmethod
+from shapes.Shape import Shape
+from typing import TypeVar, Generic
 
-class Entity:
-    def __init__(self, position: pygame.Vector2 = pygame.Vector2(0, 0), speed: float = 0):
-        self.position: pygame.Vector2 = pygame.Vector2(position)
-        self.direction: pygame.Vector2 = pygame.Vector2(0, 0)
-        self.speed = speed
+ShapeT = TypeVar('ShapeT', bound='Shape')
 
-    def set_position(self, position: pygame.Vector2):
-        self.position = pygame.Vector2(position)
+class Entity(ABC, Generic[ShapeT]):
     
-    def set_direction(self, position: pygame.Vector2):
-        self.direction = pygame.Vector2(position)
+    def __init__(self, shape: ShapeT) -> None:
+        self.shape = shape
 
-    def move_x(self):
-        x = self.direction.x
-        y = self.direction.y
-        length = math.sqrt(x**2 + y**2)
-        if not length == 0:
-            self.shape.x += (x / length) * self.speed
+    @abstractmethod
+    def update(self, dt: float) -> None:
+        pass
+    
+    # is meant to be overwritten in derived classes
+    def draw(self, surface: Surface) -> None:
+        self.shape.draw(surface)
 
-    def move_y(self):
-        x = self.direction.x
-        y = self.direction.y
-        length = math.sqrt(x**2 + y**2)
-        if not length == 0:
-            self.shape.y += (y / length) * self.speed
+    def move_x(self, speed: float) -> None:
+        self.shape.move_x(speed)
 
-    def move(self):
-        x = self.direction.x
-        y = self.direction.y
-        length = math.sqrt(x**2 + y**2)
-        if not length == 0:
-            self.position.x += (x / length) * self.speed
-            self.position.y += (y / length) * self.speed
+    def move_y(self, speed: float) -> None:
+        self.shape.move_y(speed)
+    
+    def move(self, speed: float) -> None:
+        self.shape.move(speed)
