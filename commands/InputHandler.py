@@ -7,7 +7,8 @@ import sys
 import pygame
 
 from Config import KEY_BINDINGS
-from Player import Player
+from Entity import Entity
+from Level import Level
 from .ActionsEnum import ActionsEnum
 from .Binding import Binding
 from .IAction import IAction
@@ -25,8 +26,9 @@ PLAYER_ACTIONS = "player_actions"
 
 class InputHandler:
 
-    def __init__(self, player: Player) -> None:
-        self.player: Player = player
+    def __init__(self, entity: Entity, level: Level) -> None:
+        self.entity = entity
+        self.level = level
         self.event_key_bindings: dict[int, list[Binding]] = {}
 
     def init(self) -> None:
@@ -64,7 +66,7 @@ class InputHandler:
             for name, action_class in action_classes:
                 if not name == module_name:
                     continue
-                action: IAction = action_class(self.player, self.event_key_bindings)
+                action: IAction = action_class(self.entity, self.level, self.event_key_bindings)
                 action.register_bindings()
 
     @staticmethod
