@@ -34,6 +34,11 @@ class CollisionResolver:
         nearest_point = CollisionDetector.calculate_rect_circle_nearest_point(wall_shape, bullet_shape)
         ray_to_nearest = nearest_point - bullet_shape.position
 
+        if ray_to_nearest.length() == 0:
+            bullet_new_position = bullet_shape.position + bullet_shape.direction.normalize() * 0.2
+            bullet_shape.set_position(bullet_new_position)
+            return
+
         f_overlap: float = bullet_shape.radius - ray_to_nearest.magnitude()
         bullet_new_position: pygame.Vector2 = bullet_shape.position - ray_to_nearest.normalize() * f_overlap
         

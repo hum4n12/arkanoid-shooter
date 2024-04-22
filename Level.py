@@ -1,3 +1,4 @@
+import pygame
 from MapData import MapData
 from MapParser import MapParser
 from Bullet import Bullet
@@ -6,25 +7,33 @@ from CollisionDetector import CollisionDetector
 from collision_resolvers.CollisionResolver import CollisionResolver
 from collision_resolvers.AxisEnum import AxisEnum
 from shapes.Rectangle import Rectangle
+from Wall import Wall
+from enemies.Enemy import Enemy
+from enemies.EnemyFactory import EnemyFactory
 
 class Level:
     def __init__(self, level: int):
         self.map_parser: MapParser = MapParser()
         self.level: int = level
         self.map_data: MapData = MapData()
+        self.enemy_factory: EnemyFactory = EnemyFactory()
         self.player: Player = None
         self.bullets: list[Bullet] = []
+        self.enemies: list[Enemy] = []
         self.collision_detector: CollisionDetector = None
         self.collision_resolver: CollisionResolver = None
 
     def load(self) -> None:
         self.map_data = self.map_parser.load_map(self.level)
         self.player = self.create_player()
+        self.enemies.append(self.enemy_factory.create_example_enemy(pygame.Vector2(100, 100),self.player))
         self.collision_detector = CollisionDetector()
         self.collision_resolver = CollisionResolver()
 
     def update(self, dt: float) -> None:
         self.player.update(0)
+        for enemy in self.enemies:
+            enemy.update(0)
         for bullet in self.bullets:
             bullet.update(0)
         self.resolve_collisions()
@@ -39,6 +48,9 @@ class Level:
         for bullet in self.bullets:
             bullet.draw(surface)
 
+        for enemy in self.enemies:
+            enemy.draw(surface)
+
     def create_player(self) -> Player:
         shape = Rectangle(self.map_data.player_position, Player.SIZE, Player.SIZE)
         return Player(shape)
@@ -49,19 +61,23 @@ class Level:
             bullet.shape.set_color((0, 0, 255))
             bullet.move(Bullet.SPEED)
 
-        for wall in self.map_data.level_map :
+        for wall in self.map_data.level_map:
             if self.collision_detector.detect_collision(wall.shape, self.player.shape):
                 self.collision_resolver.wall_resolve(wall, self.player, AxisEnum.X_AXIS)
             for bullet in self.bullets:
                 if self.collision_detector.detect_collision(wall.shape, bullet.shape):
-                    self.collision_resolver.bouncy_bullet_wall_resolve(bullet, wall, AxisEnum.X_AXIS)
+                    self.collision_resolver.bouncy_bullet_wall_resolve(bullet, wall)
         
         self.player.move_y(Player.SPEED)
         for wall in self.map_data.level_map:
             if self.collision_detector.detect_collision(wall.shape, self.player.shape):
                 self.collision_resolver.wall_resolve(wall, self.player, AxisEnum.Y_AXIS)
+            for bullet in self.bullets:
+                if self.collision_detector.detect_collision(wall.shape, bullet.shape):
+                    self.collision_resolver.bouncy_bullet_wall_resolve(bullet, wall)
 
     def clear(self) -> None:
         for index, bullet in enumerate(self.bullets):
             if bullet.is_outside_screen() or bullet.is_destroyed:
                 self.bullets.pop(index)
+            
