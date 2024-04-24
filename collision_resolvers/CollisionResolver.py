@@ -6,6 +6,9 @@ from shapes.Rectangle import Rectangle
 from shapes.Circle import Circle
 from Bullet import Bullet
 from CollisionDetector import CollisionDetector
+from enemies.Enemy import Enemy
+from effects.EffectTimer import EffectTimer
+from effects.BasicHitEffect import BasicHitEffect
 
 class CollisionResolver:
 
@@ -29,8 +32,6 @@ class CollisionResolver:
         bullet_shape: Circle = bullet.shape
         wall_shape: Rectangle = wall.shape
 
-        bullet_shape.set_color((0, 255, 0))
-
         nearest_point = CollisionDetector.calculate_rect_circle_nearest_point(wall_shape, bullet_shape)
         ray_to_nearest = nearest_point - bullet_shape.position
 
@@ -42,10 +43,21 @@ class CollisionResolver:
         f_overlap: float = bullet_shape.radius - ray_to_nearest.magnitude()
         bullet_new_position: pygame.Vector2 = bullet_shape.position - ray_to_nearest.normalize() * f_overlap
         
-        bullet_shape.set_direction(bullet_shape.direction.reflect(ray_to_nearest.normalize()))
+        bullet.reflect_vector = ray_to_nearest
+        bullet.is_hit = True
         bullet_shape.set_position(bullet_new_position)
 
         if bullet.bounces <= 0:
             bullet.is_destroyed = True
         else:
             bullet.bounces -= 1
+
+    @staticmethod
+    def hit_enemy_collision(enemy: Enemy, bullet: Bullet):
+        bullet.is_destroyed = True
+        enemy.hp -= 1
+        effect = BasicHitEffect(enemy)
+        enemy.add_effect(EffectTimer(BasicHitEffect.DURATION, effect))
+        if enemy.hp <= 0:
+            enemy.is_alive = False
+        

@@ -1,19 +1,20 @@
-import pygame
+import pygame, time
 
 from GameManager import GameManager
 
 
 def main():
     pygame.init()
-    clock = pygame.time.Clock()
+    previous_time: float = time.time()
     game_manager: GameManager = GameManager()
 
     game_manager.load()
-    
+
     while True:
-        game_manager.update(clock)
+        dt: float = time.time() - previous_time
+        previous_time = time.time()
+        game_manager.update(dt)
         game_manager.draw()
-        clock.tick(60)
 
 
 if __name__ == "__main__":

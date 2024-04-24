@@ -7,7 +7,7 @@ from shapes.Rectangle import Rectangle
 
 class Player(Entity[Rectangle]):
     SIZE = 50
-    SPEED = 10
+    SPEED = 400
 
     def __init__(self, shape: Rectangle):
         super().__init__(shape)
