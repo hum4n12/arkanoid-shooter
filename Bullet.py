@@ -6,13 +6,15 @@ from shapes.Circle import Circle
 
 class Bullet(Entity[Circle]):
     SIZE = 10
-    SPEED = 10
+    SPEED = 600
 
     def __init__(self, position: pygame.Vector2):
         super().__init__(Circle(position, Bullet.SIZE))
         self.bounces = 10
         self.is_destroyed = False
         self.shape.color = (0, 0, 255)
+        self.is_hit: bool = False
+        self.reflect_vector: pygame.Vector2 = pygame.Vector2(0, 0)
 
     def update(self, dt: float):
         pass

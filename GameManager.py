@@ -3,14 +3,8 @@ import sys
 import pygame
 
 from Level import Level
-from Player import Player
-from Bullet import Bullet
 import Config
-from collision_resolvers.CollisionResolver import CollisionResolver
-from collision_resolvers.AxisEnum import AxisEnum
 from commands.InputHandler import InputHandler
-from CollisionDetector import CollisionDetector
-from shapes.Rectangle import Rectangle
 
 class GameManager:
     size = (Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
@@ -25,9 +19,9 @@ class GameManager:
         self.handler = InputHandler(self.level.player, self.level)
         self.handler.init()
 
-    def update(self, clock: pygame.time.Clock) -> None:
+    def update(self, dt: float) -> None:
         self.input_handler()
-        self.level.update(0)
+        self.level.update(dt)
 
     def draw(self) -> None:
         self.screen.fill((0, 0, 0))

@@ -31,12 +31,17 @@ class Level:
         self.collision_resolver = CollisionResolver()
 
     def update(self, dt: float) -> None:
-        self.player.update(0)
+        self.player.update(dt)
+        self.player.apply_effects(dt)
         for enemy in self.enemies:
-            enemy.update(0)
+            enemy.update(dt)
+            enemy.apply_effects(dt)
+
         for bullet in self.bullets:
-            bullet.update(0)
-        self.resolve_collisions()
+            bullet.update(dt)
+            bullet.apply_effects(dt)
+        
+        self.resolve_collisions(dt)
         self.clear()
 
     def draw(self, surface) -> None:
@@ -55,29 +60,42 @@ class Level:
         shape = Rectangle(self.map_data.player_position, Player.SIZE, Player.SIZE)
         return Player(shape)
     
-    def resolve_collisions(self) -> None:
-        self.player.move_x(Player.SPEED)
+    def resolve_collisions(self, dt: float) -> None:
+        self.player.move_x(Player.SPEED * dt)
         for bullet in self.bullets:
             bullet.shape.set_color((0, 0, 255))
-            bullet.move(Bullet.SPEED)
+            bullet.move(Bullet.SPEED * dt)
 
         for wall in self.map_data.level_map:
             if self.collision_detector.detect_collision(wall.shape, self.player.shape):
                 self.collision_resolver.wall_resolve(wall, self.player, AxisEnum.X_AXIS)
-            for bullet in self.bullets:
+        
+        for bullet in self.bullets:
+            for wall in self.map_data.level_map:
                 if self.collision_detector.detect_collision(wall.shape, bullet.shape):
                     self.collision_resolver.bouncy_bullet_wall_resolve(bullet, wall)
+            if bullet.is_hit:
+                bullet.shape.set_direction(bullet.shape.direction.reflect(bullet.reflect_vector.normalize()))
         
-        self.player.move_y(Player.SPEED)
+        for bullet in self.bullets:
+            bullet.is_hit = False
+            for enemy in self.enemies:
+                if self.collision_detector.detect_collision(bullet.shape, enemy.shape):
+                    self.collision_resolver.hit_enemy_collision(enemy, bullet)
+                    
+        
+        self.player.move_y(Player.SPEED * dt)
         for wall in self.map_data.level_map:
             if self.collision_detector.detect_collision(wall.shape, self.player.shape):
                 self.collision_resolver.wall_resolve(wall, self.player, AxisEnum.Y_AXIS)
-            for bullet in self.bullets:
-                if self.collision_detector.detect_collision(wall.shape, bullet.shape):
-                    self.collision_resolver.bouncy_bullet_wall_resolve(bullet, wall)
 
     def clear(self) -> None:
         for index, bullet in enumerate(self.bullets):
             if bullet.is_outside_screen() or bullet.is_destroyed:
                 self.bullets.pop(index)
+        
+        for index, enemy in enumerate(self.enemies):
+            if not enemy.is_alive:
+                self.enemies.pop(index)
+                continue
             
