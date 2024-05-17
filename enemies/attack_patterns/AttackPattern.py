@@ -7,5 +7,5 @@ class AttackPattern(ABC):
         self.attack_target = attack_target
 
     @abstractmethod
-    def attack(self) -> None:
+    def attack(self, dt: float) -> None:
         pass
