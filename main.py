@@ -5,8 +5,9 @@ from GameManager import GameManager
 
 def main():
     pygame.init()
+    font = pygame.font.Font(None, 36)
     previous_time: float = time.time()
-    game_manager: GameManager = GameManager()
+    game_manager: GameManager = GameManager(font)
 
     game_manager.load()
 

@@ -5,13 +5,15 @@ import pygame
 from Level import Level
 import Config
 from commands.InputHandler import InputHandler
+from utils.Utils import Utils
 
 class GameManager:
     size = (Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
     screen = pygame.display.set_mode(size)
 
-    def __init__(self):
-        self.level = Level(0)
+    def __init__(self, font):
+        Utils.surface = GameManager.screen
+        self.level = Level(0, font)
         self.handler: InputHandler = None
 
     def load(self) -> None:
